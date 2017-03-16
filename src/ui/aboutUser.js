@@ -3,17 +3,6 @@ import { observer, inject } from "mobx-react";
 import { PENDING, REJECTED, FULFILLED } from "mobx-utils";
 import { Spinner, Button } from "@blueprintjs/core";
 
-function Authenticated(Component) {
-  return inject("sessionStore") 
-  (observer(function ({sessionStore}) {
-    if (sessionStore.authenticated) {
-      return <Component/>
-    } else {
-      return null;
-    }
-  }));
-}
-
 export default inject("sessionStore")(
   observer(
     class AboutUser extends React.Component {
