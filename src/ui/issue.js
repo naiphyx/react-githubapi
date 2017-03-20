@@ -6,6 +6,7 @@ import { fromPromise, PENDING, REJECTED, FULFILLED } from "mobx-utils";
 import { Spinner, Button, Intent, Toaster, Position } from "@blueprintjs/core";
 import validatorjs from "validatorjs";
 import FormInput from './formInput';
+import SingleIssue from './singleissue';
 
 const plugins = { dvr: validatorjs };
 
@@ -52,6 +53,35 @@ class IssueForm extends MobxReactForm {
   }
 }
 
+class IssueEditForm extends MobxReactForm {
+  constructor(fields, options, issueStore, repo, number) {
+    super(fields, options);
+    this.issueStore = issueStore;
+    this.repo = repo;
+    this.number = number;
+
+    extendObservable(this, {
+      issueEditDeferred: fromPromise(Promise.resolve())
+    });
+  }
+
+  onSuccess(form) {
+    const { title, text } = form.values();
+    const resultPromise = this.issueStore.editIssue(this.repo, this.number, title, text);
+    resultPromise
+      .then(() => Toaster.create({ position: Position.TOP }).show({
+        message: "issue edited",
+        intent: Intent.SUCCESS
+      }))
+      .catch(() => Toaster.create({ position: Position.TOP }).show({
+        message: "failed editing issue",
+        action: { text: "retry", onClick: () => form.submit() },
+        intent: Intent.DANGER
+      }));
+    this.issueEditDeferred = fromPromise(resultPromise);
+  }
+}
+
 const FormComponent = inject("form")(
   observer(function({ form }) {
     return (
@@ -78,14 +108,16 @@ const FormComponent = inject("form")(
   })
 );
 
+
 export default inject("issueStore", "sessionStore")(
   observer(
     class IssueFormComponent extends React.Component {
       constructor({ issueStore, sessionStore, route }) {
         super();
         issueStore.fetchIssues(route.params.repo);
+        this.number = null;
         this.state = {
-          form: new IssueForm({ fields }, { plugins }, issueStore, route.params.repo)
+          form: new IssueForm({ fields }, { plugins }, issueStore, route.params.repo),
         };
       }
       renderIssueList() {
@@ -114,21 +146,24 @@ export default inject("issueStore", "sessionStore")(
             }
             case FULFILLED: {
               const issues = issueDeferred.value;
-              return (
+              if (issues.length > 0) {
+                return (
                 <div>
                 <p>Existing Issues</p>
                 <div>
                   {
                     issues.map(
-                      (issue) => 
-                        <div key={issue.id}>
-                        <p className="repoName">{issue.title}</p>
-                        </div>
+                      (issue, index) => 
+                        <SingleIssue form={new IssueEditForm({ fields }, { plugins }, issueStore, route.params.repo, issue.number)} updateIssue={issueStore.editIssue} issue={issue} index={index}/>
                       )
                   }
                 </div>
                 </div>
                 )
+              } else {
+                return (
+                <div><p><i>No existing issues for this repository</i></p></div>)
+              }
             }
             default: {
               console.error("deferred state not supported", state);

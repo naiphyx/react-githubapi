@@ -67,4 +67,24 @@ export default class GithubAPI {
       }
     });
   };
+
+  editIssue = ({login, repo, number, title, text}) => {
+    return fetch(`https://api.github.com/repos/${login}/${repo}/issues/${number}`, {
+      method: "PATCH",
+      headers: {
+        ...this.defaultHeaders,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title: title,
+        body: text
+      })
+    }).then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        return Promise.reject();
+      }
+    });
+  }
 }

@@ -26,6 +26,15 @@ export default class IssueStore {
             );
             this.prevRepo = repo;
           });
+      }),
+      editIssue: action("editIssue", (repo, number, title, text) => {
+        return githubAPI.editIssue({
+          login: sessionStore.userDeferred.value.login,
+          repo: repo,
+          number: number,
+          title: title,
+          text: text
+        })
       })
     });
   }
