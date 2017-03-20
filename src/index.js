@@ -10,10 +10,11 @@ import GithubAPI from "./api/github";
 import RepoStore from "./stores/repo";
 import IssueStore from "./stores/issue";
 import "./index.css";
+import {token} from "./authtoken"
 
 // wire up dependencies
 const githubAPI = new GithubAPI({ 
-  userToken: "329473e2475c068e4f9c6408207d4addeb4d1d17"
+  userToken: token
 });
 const sessionStore = new SessionStore({ githubAPI });
 const viewStore = new ViewStore();
