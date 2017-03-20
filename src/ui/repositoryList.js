@@ -2,6 +2,7 @@ import React from "react";
 import { observer, inject } from "mobx-react";
 import { PENDING, REJECTED, FULFILLED } from "mobx-utils";
 import { Spinner, Button } from "@blueprintjs/core";
+
 export default inject("repoStore", "sessionStore", "viewStore")(
   observer(
     class RepositoryList extends React.Component {
@@ -44,7 +45,7 @@ export default inject("repoStore", "sessionStore", "viewStore")(
                     repos.map(
                       (rep) => 
                         <div key={rep.id}>
-                        <p class="repoName" onClick={() => viewStore.push(viewStore.routes.issue({repo: rep.name}))}>{rep.name}</p>
+                        <p className="repoName" onClick={() => viewStore.push(viewStore.routes.issue({repo: rep.name}))}>{rep.name}</p>
                         </div>
                       )
                   }

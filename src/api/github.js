@@ -34,6 +34,20 @@ export default class GithubAPI {
     });
   };
 
+  getIssues = ({ login, repo }) => {
+    return fetch(`https://api.github.com/repos/${login}/${repo}/issues`, {
+      headers: {
+        ...this.defaultHeaders
+      }
+    }).then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        return Promise.reject();
+      }
+    });
+  };
+
   postIssue = ({ login, repo, title, text }) => {
     return fetch(`https://api.github.com/repos/${login}/${repo}/issues`, {
       method: "POST",
