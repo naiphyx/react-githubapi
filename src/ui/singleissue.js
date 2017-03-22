@@ -1,9 +1,7 @@
 import React from "react";
-import { Spinner, Button, Intent, Toaster, Position } from "@blueprintjs/core";
+import { Button, Position } from "@blueprintjs/core";
 import FormInput from './formInput';
 import { observer, Provider, inject } from "mobx-react";
-
-
 
 export default class SingleIssue extends React.Component {
   constructor(props) {
@@ -26,18 +24,18 @@ export default class SingleIssue extends React.Component {
   }
   render() {
     const {updateIssue, issue, form} = this.props;
-    console.log(this.state.currentValue);
     if(this.state.mode === 'show') {
       return <div>
       <div>{issue.title}</div>
       <button onClick={this.enterEditMode}>Edit</button> 
+      <hr/>
     </div>
     }
     else {
       return <Provider form={form}>
             <div>
-            <h3>issue for {issue.title}</h3>
-            <EditFormComponent />
+            <h3>Edit issue {issue.title}</h3>
+            <EditFormComponent enterShowMode={this.enterShowMode} />
             </div>
           </Provider>
     }
@@ -45,7 +43,7 @@ export default class SingleIssue extends React.Component {
 }
 
 const EditFormComponent = inject("form")(
-  observer(function({ form }) {
+  observer(function({ form, enterShowMode }) {
     return (
       <form onSubmit={form.onSubmit}>
 
@@ -62,7 +60,7 @@ const EditFormComponent = inject("form")(
           )
         })}
         <Button onClick={form.onClear} text="clear" />
-        <Button onClick={form.onReset} text="reset" />
+        <Button onClick={enterShowMode} text="cancel" />
 
         <p>{form.error}</p>
       </form>

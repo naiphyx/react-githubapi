@@ -69,10 +69,14 @@ class IssueEditForm extends MobxReactForm {
     const { title, text } = form.values();
     const resultPromise = this.issueStore.editIssue(this.repo, this.number, title, text);
     resultPromise
-      .then(() => Toaster.create({ position: Position.TOP }).show({
+      .then(() => {
+        Toaster.create({ position: Position.TOP }).show({
         message: "issue edited",
         intent: Intent.SUCCESS
-      }))
+      })
+      this.issueStore.fetchIssues(this.repo);
+      window.location.reload();
+      })
       .catch(() => Toaster.create({ position: Position.TOP }).show({
         message: "failed editing issue",
         action: { text: "retry", onClick: () => form.submit() },
@@ -115,7 +119,6 @@ export default inject("issueStore", "sessionStore")(
       constructor({ issueStore, sessionStore, route }) {
         super();
         issueStore.fetchIssues(route.params.repo);
-        this.number = null;
         this.state = {
           form: new IssueForm({ fields }, { plugins }, issueStore, route.params.repo),
         };
@@ -154,7 +157,7 @@ export default inject("issueStore", "sessionStore")(
                   {
                     issues.map(
                       (issue, index) => 
-                        <SingleIssue form={new IssueEditForm({ fields }, { plugins }, issueStore, route.params.repo, issue.number)} updateIssue={issueStore.editIssue} issue={issue} index={index}/>
+                        <SingleIssue form={new IssueEditForm({ fields }, { plugins }, issueStore, route.params.repo, issue.number)} updateIssue={issueStore.editIssue} issue={issue} key={index}/>
                       )
                   }
                 </div>
